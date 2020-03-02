@@ -1,0 +1,12 @@
+#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
+#pragma OPENCL EXTENSION cl_amd_printf : enable
+
+#include "ComplexFunctions.cl"
+#include "2x2FFT.cl"
+#include "MatrixOperations.cl"
+#include "FCLayer.cl"
+#include "Backpropagation.cl"
+#include "ErrorCalculationLayer.cl"
+#include "ProjectionLayer.cl"
+#include "ConvLayer.cl"
+#include "SoftMaxLayer.cl"

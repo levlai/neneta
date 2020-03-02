@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<kernels>
+    <localworksize>
+        <dim1>16</dim1>
+        <dim2>16</dim2>
+        <dim3>16</dim3>
+    </localworksize>
+
+    <kernel name="rowIndexReverse">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="columnIndexReverse">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="dit_2x2radix_2dfft_1st">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="dit_2x2radix_2dfft_2nd">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="print">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="println">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="fftShift">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="fftScale">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="hadamard_product">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="spectral_pooling">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="vec_hadamard_product">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="sum">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="exponent">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="sumOfExponents">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="softmax">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="updateWeightsFC">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="calculateDeltasFC">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="complextanh">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="meansquare">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="crossentropy">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="complexms">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="loss_sum">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="complexms_act">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="complexms_acc">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="crossentropy_act">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="crossentropy_acc">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="swapbuffers">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="absolute">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="updateDeltas">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="compconv">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="calculateWeightUpdates">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="fake">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="calculateLocalGradient">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="updateWeights">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="flipdim">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="calculateErrors">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="calculateErrorsFC">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="calculateErrorsPL">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="printMatrix">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="maxValue">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="addBias">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="sigmoid">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="realtanh">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="georgiou">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="complexsinh">
+        <profile>false</profile>
+    </kernel>
+    <kernel name="complexsinh_norm">
+        <profile>false</profile>
+    </kernel>
+</kernels>

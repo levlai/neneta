@@ -1,0 +1,236 @@
+#pragma once
+
+inline float2 cadd(float2 a, float2 b)
+{
+    return (float2)(a.x + b.x, a.y + b.y);
+}
+
+inline float2 caddr(float2 a, float r)
+{
+    return (float2)(a.x + r, a.y);
+}
+
+inline float2 cradd(float r, float2 a)
+{
+    return (float2)(a.x + r, a.y);
+}
+
+inline float2 csub(float2 a, float2 b)
+{
+    return (float2)(a.x - b.x, a.y - b.y);
+}
+
+inline float2 cmul(float2 a, float2 b)
+{
+    return (float2)(a.x*b.x - a.y*b.y, a.x*b.y + a.y*b.x);
+}
+
+inline float real(float2 a)
+{
+    return a.x;
+}
+
+inline float imag(float2 a)
+{
+    return a.y;
+}
+
+inline float cabs(float2 a)
+{
+    return hypot(a.x, a.y); //square root of x^2 + y^2
+}
+
+// f(z)=tanh(b*z)
+inline float2 ctanh(float2 z, float a, float b)
+{  
+  float re2 = b*2.f * z.x;
+  float im2 = b*2.f * z.y; 
+  const float limit = log((float)INT_MAX);
+
+  if (fabs(re2) > limit)
+  {
+ //   printf("overflow tanh fabs(re2) = %f, limit = %f\n", fabs(re2), limit);
+    return (float2)((re2 > 0 ? 1.f : -1.f), 0.f);
+  }
+  else
+  {
+    float den = cosh(re2) + cos(im2);    
+    return (float2)(a*sinh(re2)/den, a*sin(im2)/den);
+  }
+}
+
+inline float2  cdiv(float2 nom, float2 den)
+{
+    const float n = den.x*den.x + den.y*den.y;
+    return (float2)((nom.x*den.x + nom.y*den.y)/n, (nom.y*den.x-nom.x*den.y)/n);
+}
+
+inline float2 csinh(float2 z)
+{
+    return (float2)(sinh(z.x)*cos(z.y), cosh(z.x)*sin(z.y));
+}
+
+inline float2 ccosh(float2 z)
+{
+    return (float2)(cosh(z.x)*cos(z.y), sinh(z.x)*sin(z.y));
+}
+
+// f(z)=a*tanh(b*z)
+inline float2 ctanh_bkp(float2 z, float a, float b)
+{
+  float2 result =  a*cdiv(csinh(b*z), ccosh(b*z));
+  printf("ctanh = (%f,%f)\n", result.x, result.y);
+  return result;
+}
+
+// a*tanh'(bz) = a*b*(1-pow(tanh(b*z),2))
+inline float2 ctanhprim(float2 tanh_bz, float a, float b)
+{
+    return a*b*(cradd(1,-cmul(tanh_bz, tanh_bz)));
+}
+
+float2 complextanhImpl(float2 input, float a, float b)
+{
+    return ctanh(input, a, b);
+}
+
+
+float2 complextanhDerImpl(float2 input, float a, float b)
+{
+    return ctanhprim(input, a, b);
+}
+
+float2 sigmoidImpl(float2 input)
+{
+    float output = 1.0f/(1.0+exp(-input.x));
+    return (float2)(output,0);
+}
+
+
+float2 sigmoidDerImpl(float2 input)
+{
+    return (float2)(input.x*(1-input.x),0);
+}
+
+// a*tanh(b*z) , b - gain coeff, a - saturation amplitude
+__kernel void complextanh(global float* outRe, global float* outIm, const int outputOffset,
+                          const global float* actPotRe, const global float* actPotIm, const int inputOffset,
+                          const global float* biasRe, const global float* biasIm,
+                          global float* derRe, global float* derIm,
+                          unsigned int outChannel)
+{
+    const int gsiz = get_global_size(0);
+    const int n = get_global_id(0);
+    const int m = get_global_id(1);
+    const int inIdx = outChannel*inputOffset + m*gsiz+n;
+    const int outIdx = outChannel*outputOffset + m*gsiz+n;
+    float saturation = 1.7159f;
+    float gain = 0.6667f; // 2/3
+
+
+    float2 activationPotential = (float2)(actPotRe[inIdx]+biasRe[outChannel], actPotIm[inIdx]+biasIm[outChannel]);
+    //printf("outIdx %d outChannel %d n,m (%d,%d) act=(%f,%f) activationPotential %f + j%f, bias = (%f, %f)\n", outIdx, outChannel, n, m, actPotRe[inIdx], actPotIm[inIdx], activationPotential.x, activationPotential.y, biasRe[outChannel], biasIm[outChannel]);
+    float2  out = complextanhImpl(activationPotential, saturation, gain);
+    outRe[outIdx] = out.x;
+    outIm[outIdx] = out.y;
+    //printf("outChannel %d outIdx %d output = %f + j%f\n", outChannel, outIdx, out.x, out.y);
+    out = complextanhDerImpl(out, saturation, gain);
+    derRe[outIdx] = out.x;
+    derIm[outIdx] = out.y;
+    //printf("outChannel %d outIdx %d derivation output = %f + j%f\n", outChannel, outIdx, out.x, out.y);
+}
+
+__kernel void sigmoid(global float* outRe, global float* outIm, const int outputOffset,
+                      const global float* actPotRe, const global float* actPotIm, const int inputOffset,
+                      const global float* biasRe, const global float* biasIm,
+                      global float* derRe, global float* derIm,
+                      unsigned int outChannel)
+{
+    const int gsiz = get_global_size(0);
+    const int n = get_global_id(0);
+    const int m = get_global_id(1);
+    const int inIdx = outChannel*inputOffset + m*gsiz+n;
+    const int outIdx = outChannel*outputOffset + m*gsiz+n;
+
+    float2 activationPotential = (float2)(actPotRe[inIdx]+biasRe[outChannel], actPotIm[inIdx]+biasIm[outChannel]);
+    float2  out = sigmoidImpl(activationPotential);
+    outRe[outIdx] = out.x;
+    outIm[outIdx] = out.y;
+    out = sigmoidDerImpl(out);
+    derRe[outIdx] = out.x;
+    derIm[outIdx] = out.y;
+}
+
+__kernel void realtanh(global float* outRe, global float* outIm, const int outputOffset,
+                      const global float* actPotRe, const global float* actPotIm, const int inputOffset,
+                      const global float* biasRe, const global float* biasIm,
+                      global float* derRe, global float* derIm,
+                      unsigned int outChannel)
+{
+    const int gsiz = get_global_size(0);
+    const int n = get_global_id(0);
+    const int m = get_global_id(1);
+    const int inIdx = outChannel*inputOffset + m*gsiz+n;
+    const int outIdx = outChannel*outputOffset + m*gsiz+n;
+
+    outRe[outIdx] = tanh(actPotRe[inIdx]+biasRe[outChannel]);
+    outIm[outIdx] = 0;
+    derRe[outIdx] = 1 - outRe[outIdx]*outRe[outIdx];
+    derIm[outIdx] = 0;
+}
+
+
+__kernel void fake(global float* outRe, global float* outIm, const int outputOffset,
+                   const global float* actPotRe, const global float* actPotIm, const int inputOffset,
+                   const global float* biasRe, const global float* biasIm,
+                   global float* derRe, global float* derIm,
+                   unsigned int outChannel)
+{
+    const int gsiz = get_global_size(0);
+    const int n = get_global_id(0);
+    const int m = get_global_id(1);
+    const int inIdx = outChannel*inputOffset + m*gsiz+n;
+    const int outIdx = outChannel*outputOffset + m*gsiz+n;
+
+    float2 activationPotential = (float2)(actPotRe[inIdx]+biasRe[outChannel], actPotIm[inIdx]+biasIm[outChannel]);
+
+    outRe[outIdx] = activationPotential.x;
+    outIm[outIdx] = activationPotential.y;
+
+    derRe[outIdx] = 1;
+    derIm[outIdx] = 1;
+}
+
+//georgiou - f(z) = z/(c+(1/r)*|z|)
+__kernel void georgiou(global float* outRe, global float* outIm, const int outputOffset,
+                       const global float* actPotRe, const global float* actPotIm, const int inputOffset,
+                       const global float* biasRe, const global float* biasIm,
+                       global float* derRe, global float* derIm,
+                       unsigned int outChannel)
+{
+    const int gsiz = get_global_size(0);
+    const int n = get_global_id(0);
+    const int m = get_global_id(1);
+    const int inIdx = outChannel*inputOffset + m*gsiz+n;
+    const int outIdx = outChannel*outputOffset + m*gsiz+n;
+    const float c = 0;
+    const float r = 1;
+
+    const float2 activationPotential = (float2)(actPotRe[inIdx]+biasRe[outChannel], actPotIm[inIdx]+biasIm[outChannel]);
+    const float absz = cabs(activationPotential);
+
+    outRe[outIdx] = activationPotential.x/(c+(1.0f/r)*absz);
+    outIm[outIdx] = activationPotential.y/(c+(1.0f/r)*absz);
+
+    if(absz != 0)
+    {
+        derRe[outIdx] = r*(activationPotential.y*activationPotential.y + c*r*absz)/(absz*(c*r+absz)*(c*r+absz));
+        derIm[outIdx] = -r*activationPotential.x*activationPotential.y/(absz*(c*r+absz)*(c*r+absz));
+    }
+    else
+    {
+        derRe[outIdx] = 1.0f/c;
+        derIm[outIdx] = 0.0f;
+    }
+
+}

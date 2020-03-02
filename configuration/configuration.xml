@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<configuration>
+    <logging>
+        <filepath>/home/vladimir/workspace/neneta_logs</filepath>
+        <filename>nenenta_%N.log</filename>
+        <rotationsize>1500</rotationsize> <!-- megabytes -->
+        <format>[%TimeStamp%]: %Message%</format>
+        <level>2</level> <!-- trace = 0, debug = 1, info = 2, warning = 3, error = 4, fatal = 5 -->
+    </logging>
+
+    <plotting>
+        <gnuplotcmd>gnuplot --persist</gnuplotcmd>
+    </plotting>
+
+    <neuralnetwork>
+        <networkparamsconfig>network_params_mnist_COMPLEX_1xFC_1xFC.xml</networkparamsconfig>
+    </neuralnetwork>
+
+    <images source="mnist">
+        <trainset>            
+            <offset>0</offset>
+            <size>50000</size>
+            <minibatchsize>1</minibatchsize>
+            <path>/home/vladimir/workspace/mnist/train/train-images.idx3-ubyte</path>
+            <labels>/home/vladimir/workspace/mnist/train/train-labels.idx1-ubyte</labels>
+        </trainset>
+        <testset>
+            <offset>0</offset>
+            <size>10000</size>
+            <path>/home/vladimir/workspace/mnist/test/t10k-images.idx3-ubyte</path>
+            <labels>E/home/vladimir/workspace/mnist/test/t10k-labels.idx1-ubyte</labels>
+        </testset>
+        <validationset>
+            <offset>50000</offset>
+            <size>10000</size>
+            <path>/home/vladimir/workspace/mnist/train/train-images.idx3-ubyte</path>
+            <labels>/home/vladimir/workspace/mnist/train/train-labels.idx1-ubyte</labels>
+        </validationset>
+    </images>
+
+    <dispatcher>
+        <maxqueuesize>3</maxqueuesize>
+    </dispatcher>
+
+    <persistance>
+        <store>false</store>
+        <restore>false</restore>
+        <useexistingdb>false</useexistingdb>
+        <trainsetdb>/home/vladimir/workspace/trainset.db</trainsetdb>
+        <netconfdb>/home/vladimir/workspace/netconf.db</netconfdb>
+    </persistance>
+
+    <gpu>
+        <platformid>0</platformid>
+        <deviceid>0</deviceid>
+        <sourcesdir>Kernels.clh</sourcesdir> <!--if not specified  it will look for all *.cl files in work directory-->
+        <profiling>false</profiling>
+        <kernelconfig>kernels.xml</kernelconfig>
+    </gpu>
+</configuration>

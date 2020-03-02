@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<neneta>
+
+    <layer type="input" id="input1">
+        <!-- 384MB -->
+        <rpipesize>101326592</rpipesize> <!-- 201326592 -->
+        <ipipesize>101326592</ipipesize>
+        <inputdim>2</inputdim>
+        <inputsize>28</inputsize>
+        <outputsize>10</outputsize>
+        <inputchannels>1</inputchannels>
+    </layer>
+
+    <layer type="fc" id="fc1">
+            <input>input1</input>
+            <channels>1</channels>
+            <inputdim>2</inputdim>
+            <inputsize>28</inputsize>
+            <outputsize>20</outputsize>
+            <actfunc>complextanh</actfunc>
+            <weightsdev>1</weightsdev>
+            <weightsmean>0</weightsmean>
+            <weightstype>complex</weightstype>
+            <biasre>0.0001</biasre>
+            <biasim>0</biasim>
+    </layer>
+
+    <layer type="projection" id="proj1">
+            <input>fc1</input>
+            <channels>20</channels>
+            <projectionfunc>absolute</projectionfunc>
+    </layer>
+
+    <layer type="softmax" id="sm1">
+            <input>proj1</input>
+            <channels>20</channels>
+            <inputdim>1</inputdim>
+            <inputsize>1</inputsize>
+            <outputsize>10</outputsize>
+            <actfunc>softmax</actfunc>
+            <weightsdev>1</weightsdev>
+            <weightsmean>0</weightsmean>
+            <bias>0.0001</bias>
+    </layer>
+
+    <layer type="errorcalc" id="err1">
+        <input>sm1</input>
+        <channels>10</channels>
+        <errorfunc>crossentropy</errorfunc>
+    </layer>
+
+</neneta>
+

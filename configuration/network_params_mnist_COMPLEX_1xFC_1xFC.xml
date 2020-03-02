@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<neneta>
+
+    <layer type="input" id="input1">
+        <!-- 384MB -->
+        <rpipesize>101326592</rpipesize> <!-- 201326592 -->
+        <ipipesize>101326592</ipipesize>
+        <inputdim>2</inputdim>
+        <inputsize>28</inputsize>
+        <outputsize>10</outputsize>        
+        <inputchannels>1</inputchannels>
+        <labelcoding>complex</labelcoding>
+    </layer>
+
+    <layer type="fc" id="fc1">
+            <input>input1</input>
+            <channels>1</channels>
+            <inputdim>2</inputdim>
+            <inputsize>28</inputsize>
+            <outputsize>35</outputsize>
+            <actfunc>georgiou</actfunc>
+            <weightsdev>0.01</weightsdev>
+            <weightsmean>0</weightsmean>
+            <weightstype>complex</weightstype>
+            <biasre>0.00001</biasre>
+            <biasim>0.00001</biasim>
+    </layer>
+
+    <layer type="fc" id="fc2">
+            <input>fc1</input>
+            <channels>1</channels>
+            <inputdim>1</inputdim>
+            <inputsize>35</inputsize>
+            <outputsize>10</outputsize>
+            <actfunc>complexsinh</actfunc>
+            <weightsdev>0.01</weightsdev>
+            <weightsmean>0</weightsmean>
+            <weightstype>complex</weightstype>
+            <biasre>0.00001</biasre>
+            <biasim>0.00001</biasim>
+    </layer>
+<!--
+    <layer type="fc" id="fc3">
+            <input>fc2</input>
+            <channels>1</channels>
+            <inputdim>1</inputdim>
+            <inputsize>60</inputsize>
+            <outputsize>10</outputsize>
+            <actfunc>complextanh</actfunc>
+            <weightsdev>1</weightsdev>
+            <weightsmean>0</weightsmean>
+            <weightstype>complex</weightstype>
+            <biasre>0.0001</biasre>
+            <biasim>0</biasim>
+    </layer>
+-->
+    <layer type="errorcalc" id="err1">
+        <input>fc2</input>
+        <channels>10</channels>
+        <errorfunc>complexms</errorfunc>
+    </layer>
+
+</neneta>
+

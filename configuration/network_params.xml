@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<neneta>
+
+    <layer type="input" id="input1">
+        <!-- 384MB -->
+        <rpipesize>101326592</rpipesize> <!-- 201326592 -->
+        <ipipesize>101326592</ipipesize>
+        <outputsize>40</outputsize> <!-- 4x10 --->
+    </layer>
+
+    <layer type="conv" id="conv1">
+            <input>input1</input>
+            <channels>3</channels> <!-- 3 ili 1 -->
+            <kernels>1</kernels>  <!-- 64 ili 1 -->
+            <kernelsize>3</kernelsize> <!-- 11 ili 3 -->
+            <stride>1</stride>
+            <inputdim>2</inputdim>
+            <inputsize>512</inputsize>
+            <actfunc>complextanh</actfunc>
+            <weightsdev>0.01</weightsdev>
+            <bias>1</bias>
+    </layer>
+
+    <layer type="spectralpool" id="pool1">
+            <input>conv1</input>
+            <channels>1</channels> <!-- num of kernels from previous -->
+            <inputsize>512</inputsize>
+            <outputsize>256</outputsize>
+    </layer>
+
+    <layer type="conv" id="conv2">
+            <input>pool1</input>
+            <channels>1</channels> <!-- 3 ili 1 -->
+            <kernels>3</kernels>  <!-- 64 ili 1 -->
+            <kernelsize>5</kernelsize> <!-- 11 ili 3 -->
+            <stride>1</stride>
+            <inputdim>2</inputdim>
+            <inputsize>256</inputsize>
+            <actfunc>complextanh</actfunc>
+            <weightsdev>0.01</weightsdev>
+            <bias>1</bias>
+    </layer>
+
+    <layer type="spectralpool" id="pool2">
+            <input>conv2</input>
+            <channels>3</channels> <!-- num of kernels from previous layer -->
+            <inputsize>256</inputsize>
+            <outputsize>128</outputsize>
+    </layer>
+
+    <layer type="conv" id="conv3">
+            <input>pool2</input>
+            <channels>3</channels> <!-- 3 ili 1 -->
+            <kernels>3</kernels>  <!-- 64 ili 1 -->
+            <kernelsize>3</kernelsize> <!-- 11 ili 3 -->
+            <stride>1</stride>
+            <inputdim>2</inputdim>
+            <inputsize>128</inputsize>
+            <actfunc>complextanh</actfunc>
+            <weightsdev>0.01</weightsdev>
+            <bias>1</bias>
+    </layer>
+
+    <layer type="fc" id="fc1">
+            <input>conv3</input>
+            <channels>3</channels>
+            <inputdim>2</inputdim>
+            <inputsize>128</inputsize>
+            <outputsize>10</outputsize>
+            <actfunc>complextanh</actfunc>
+            <weightsdev>0.01</weightsdev>
+            <bias>1</bias>
+    </layer>
+
+    <layer type="fc" id="fc2">
+            <input>fc1</input>
+            <channels>1</channels>
+            <inputdim>1</inputdim>
+            <inputsize>10</inputsize>
+            <outputsize>10</outputsize>
+            <actfunc>complextanh</actfunc>
+            <weightsdev>0.01</weightsdev>
+            <biasre>1</biasre>
+            <biasim>0</biasim>
+    </layer>
+
+    <layer type="projection" id="proj1">
+            <input>fc2</input>
+            <channels>10</channels>
+            <projectionfunc>absolute</projectionfunc>
+    </layer>
+
+    <layer type="softmax" id="sm1">
+            <input>proj1</input>
+            <channels>1</channels>
+            <inputdim>1</inputdim>
+            <inputsize>10</inputsize>
+            <outputsize>10</outputsize>
+            <actfunc>softmax</actfunc>
+            <weightsdev>0.01</weightsdev>
+            <bias>1</bias>
+    </layer>
+
+    <layer type="errorcalc" id="err1">
+        <input>sm1</input>
+        <channels>10</channels>
+        <errorfunc>meansquare</errorfunc>
+    </layer>
+
+    <layer type="fft" id="ifft">
+        <input>pool1</input>
+        <size>256</size>
+        <channels>1</channels>
+    </layer>
+
+</neneta>
+
