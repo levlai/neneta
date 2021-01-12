@@ -2,7 +2,7 @@
 Complex Neural Network Framework
 (not under development any more)
 
-This code is written in 2014/2015 at the beginning of the research for my doctoral disseration. At the time, there was no available framework for training of complex neural networks (I am not sure there is even today). This framework is using OpenCL interface to GPU. 
+This code is written in 2014/2015 at the beginning of the research during my phd. At the time, there was no available framework for training of complex-valued neural networks (I am not sure there is one even today). This framework is using OpenCL interface to GPU. 
 
 If you find this framework to be usefull in any way, please cite it as follows:
 ```
