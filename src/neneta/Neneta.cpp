@@ -23,8 +23,6 @@ Neneta::~Neneta()
 {
 }
 
-#include <chrono>
-
 void Neneta::processTrainingEvent(std::shared_ptr<imh::DispatcherEvent> event)
 {
     static int im = 0;
@@ -35,10 +33,8 @@ void Neneta::processTrainingEvent(std::shared_ptr<imh::DispatcherEvent> event)
             break;
         case imh::DispatcherEvent::Type::IMAGE: //new image read from db, store it in input, and run nn
         {                        
-          //  auto start = std::chrono::high_resolution_clock::now();
             std::unique_ptr<ip::Image<std::uint8_t, std::int16_t>> img = std::move(std::static_pointer_cast<imh::ImageEvent<std::uint8_t>>(event)->m_data);
             ip::Image<float, std::int16_t> complexImg = img->convertToComplex(255);
-          //  ip::Image<cmn::GPUFLOAT, std::int16_t> complexImg = img->convertToRealFloat(255);
             std::static_pointer_cast<net::InputLayer>(m_executionPlan.m_input)->setInput(complexImg);
             m_executionPlan.m_fwRun->runFwdPropagation(m_netConfig.getOpenCLContext());
             m_executionPlan.m_fwRun->wait();
@@ -49,20 +45,14 @@ void Neneta::processTrainingEvent(std::shared_ptr<imh::DispatcherEvent> event)
             {
                 m_trainingPlot.plotNewPoint(m_loss/m_samples);
             }
-            //BOOST_LOG_TRIVIAL(info) << "Processed image -> " << m_samples << " loss = " << m_loss/m_samples;
-         //   auto diff = std::chrono::high_resolution_clock::now() - start;
-         //   BOOST_LOG_TRIVIAL(info) << "Fwd exec time: " << std::chrono::duration_cast<std::chrono::microseconds>(diff).count() << " us";
             break;
         }
         case imh::DispatcherEvent::Type::STARTOFBATCH: //reset input            
             break;
         case imh::DispatcherEvent::Type::ENDOFBATCH: //execute network
         {
-          //  auto start = std::chrono::high_resolution_clock::now();
             m_executionPlan.m_bcRun->runBckPropagation(m_netConfig.getOpenCLContext());
             m_executionPlan.m_bcRun->wait();
-         //   auto diff = std::chrono::high_resolution_clock::now() - start;
-         //   BOOST_LOG_TRIVIAL(info) << "Bck exec time: " << std::chrono::duration_cast<std::chrono::microseconds>(diff).count() << " us";
             break;
         }
         case imh::DispatcherEvent::Type::ENDOFDB:
@@ -89,7 +79,6 @@ void Neneta::processValidationEvent(std::shared_ptr<imh::DispatcherEvent> event)
         {
             std::unique_ptr<ip::Image<std::uint8_t, std::int16_t>> img = std::move(std::static_pointer_cast<imh::ImageEvent<std::uint8_t>>(event)->m_data);
             ip::Image<float, std::int16_t> complexImg = img->convertToComplex(255);
-          //  ip::Image<cmn::GPUFLOAT, std::int16_t> complexImg = img->convertToRealFloat(255);
             std::static_pointer_cast<net::InputLayer>(m_executionPlan.m_input)->setInput(complexImg);
             m_executionPlan.m_fwRun->runFwdPropagation(m_netConfig.getOpenCLContext());
             m_executionPlan.m_fwRun->wait();
@@ -125,7 +114,6 @@ void Neneta::processTestEvent(std::shared_ptr<imh::DispatcherEvent> event)
         {
             std::unique_ptr<ip::Image<std::uint8_t, std::int16_t>> img = std::move(std::static_pointer_cast<imh::ImageEvent<std::uint8_t>>(event)->m_data);
             ip::Image<float, std::int16_t> complexImg = img->convertToComplex(255);
-        //    ip::Image<cmn::GPUFLOAT, std::int16_t> complexImg = img->convertToRealFloat(255);
             std::static_pointer_cast<net::InputLayer>(m_executionPlan.m_input)->setInput(complexImg);
             m_executionPlan.m_fwRun->runFwdPropagation(m_netConfig.getOpenCLContext());
             m_executionPlan.m_fwRun->wait();
